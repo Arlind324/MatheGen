@@ -1,0 +1,80 @@
+app/page.tsx
+// Mathe-Bot Webseite (Grundgerüst mit Bild-Upload und Texteingabe)
+import React, { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Loader2 } from "lucide-react";
+
+export default function MatheBot() {
+  const [image, setImage] = useState(null);
+  const [text, setText] = useState("");
+  const [antwort, setAntwort] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleImageChange = (e) => {
+    setImage(e.target.files[0]);
+  };
+
+  const handleTextChange = (e) => {
+    setText(e.target.value);
+  };
+
+  const handleSubmit = async () => {
+    setLoading(true);
+    const formData = new FormData();
+    formData.append("text", text);
+    if (image) formData.append("image", image);
+
+    try {
+      const res = await fetch("/api/mathebot", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      setAntwort(data.antwort);
+    } catch (error) {
+      setAntwort("Fehler beim Verarbeiten der Anfrage.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="max-w-xl mx-auto p-4 space-y-4">
+      <h1 className="text-3xl font-bold text-center">📐 Mathe-Bot (Deutsch)</h1>
+
+      <Card>
+        <CardContent className="space-y-4 p-4">
+          <label className="block">📤 Bild mit Aufgabe hochladen:</label>
+          <Input type="file" accept="image/*" onChange={handleImageChange} />
+
+          <label className="block">✍️ Oder Aufgabe eingeben:</label>
+          <Textarea
+            placeholder="Schreibe hier deine Matheaufgabe..."
+            value={text}
+            onChange={handleTextChange}
+          />
+
+          <Button onClick={handleSubmit} disabled={loading}>
+            {loading ? (
+              <><Loader2 className="animate-spin mr-2" /> Wird geladen...</>
+            ) : (
+              "Lösung anzeigen"
+            )}
+          </Button>
+        </CardContent>
+      </Card>
+
+      {antwort && (
+        <Card>
+          <CardContent className="p-4">
+            <h2 className="font-bold mb-2">✅ Antwort:</h2>
+            <p>{antwort}</p>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+}
