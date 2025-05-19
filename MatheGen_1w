@@ -1,4 +1,6 @@
-app/page.tsx
+export default function Home() {
+  return <h1>Willkommen bei MatheGen!</h1>;
+}
 // Mathe-Bot Webseite (Grundgerüst mit Bild-Upload und Texteingabe)
 import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
